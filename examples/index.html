@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>download test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      padding: 0 20px;
+    }
+
+    pre {
+      display: block;
+      padding: 15px;
+      background-color: #f5f5f5;
+    }
+
+    h2 ~ div {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Usage</h1>
+
+  <h2>Plain Text</h2>
+  <div>
+    <div>
+      <button type="button" data-download="string">text string</button>
+    </div>
+    <pre>
+      download("hello world", "text.txt", "text/plain");
+    </pre>
+  </div>
+  <div>
+    <div>
+      <button type="button" data-download="dataURI">text dataURI</button>
+    </div>
+    <pre>
+      download("data:text/plain,hello%20world", "textDataURI.txt", "text/plain");
+    </pre>
+  </div>
+  <div>
+    <div>
+      <button type="button" data-download="blob">text blob</button>
+    </div>
+    <pre>
+      download(new Blob([ "hello world" ]), "textBlob.txt", "text/plain");
+    </pre>
+  </div>
+  <div>
+    <div>
+      <button type="button" data-download="uint8Array">text uint8Array</button>
+    </div>
+    <pre>
+      const arr = "hello world".split("");
+      const uint = new Uint8Array(arr.lenth);
+
+      arr.forEach((d, i) => {
+        uint[i] = d.charCodeAt(0)
+      });
+
+      download(uint, "textUint8Array.txt", "text/plain");
+    </pre>
+  </div>
+
+  <h2>HTML</h2>
+  <div>
+    <div>
+      <button type="button" data-download="htmlString">html string</button>
+    </div>
+    <pre>
+      download("&lt;h1&gt;hello world&lt;/h1&gt;", "html.html", "text/html");
+    </pre>
+  </div>
+
+  <h2>Binary</h2>
+  <div>
+    <div>
+      <button type="button" data-download="binary">binary</button>
+    </div>
+    <pre>
+      download("data:image/gif;base64,R0lGODlhRgAVAIcAAOfn5+/v7/f39...", "binary.gif", "image/gif");
+    </pre>
+  </div>
+
+  <h2>JSON</h2>
+  <div>
+    <div>
+      <button type="button" data-download="json">json</button>
+    </div>
+    <pre>
+      download(JSON.stringify({name: "hello world", age: 19}), "json.json", "application/json");
+    </pre>
+  </div>
+
+  <script src="../dist/download.js"></script>
+  <script>
+    const option = {
+      string: {
+        data: 'hello world',
+        filename: 'text.txt',
+        mimeType: 'text/plain'
+      },
+      dataURI: {
+        data: 'data:text/plain,hello%20world',
+        filename: 'textDataURI.txt',
+        mimeType: 'text/plain'
+      },
+      blob: {
+        data: new Blob([ 'hello world' ]),
+        filename: 'textBlob.txt',
+        mimeType: 'text/plain'
+      },
+      uint8Array: {
+        data: () => {
+          const arr = 'hello world'.split('');
+          const uint = new Uint8Array(arr.length);
+
+          arr.forEach((d, i) => {
+            uint[i] = d.charCodeAt(i);
+          });
+
+          return uint;
+        },
+        filename: 'textUint8Array.txt',
+        mimeType: 'text/plain'
+      },
+      htmlString: {
+        data: () => {
+          const h1 = document.createElement('h1');
+          h1.textContent = 'hello world';
+          return h1.outerHTML;
+        },
+        filename: 'html.html',
+        mimeType: 'text/html'
+      },
+      binary: {
+        data: () => {
+          return 'data:image/gif;base64,R0lGODlhRgAVAIcAAOfn5+/v7/f39////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAAAAP8ALAAAAABGABUAAAj/AAEIHAgggMGDCAkSRMgwgEKBDRM+LBjRoEKDAjJq1GhxIMaNGzt6DAAypMORJTmeLKhxgMuXKiGSzPgSZsaVMwXUdBmTYsudKjHuBCoAIc2hMBnqRMqz6MGjTJ0KZcrz5EyqA276xJrVKlSkWqdGLQpxKVWyW8+iJcl1LVu1XttafTs2Lla3ZqNavAo37dm9X4eGFQtWKt+6T+8aDkxUqWKjeQUvfvw0MtHJcCtTJiwZsmLMiD9uplvY82jLNW9qzsy58WrWpDu/Lp0YNmPXrVMvRm3T6GneSX3bBt5VeOjDemfLFv1XOW7kncvKdZi7t/S7e2M3LkscLcvH3LF7HwSuVeZtjuPPe2d+GefPrD1RpnS6MGdJkebn4/+oMSAAOw==';
+        },
+        filename: 'binary.gif',
+        mimeType: 'image/gif'
+      },
+      json: {
+        data: JSON.stringify({
+          name: 'hello world',
+          age: 19
+        }, null, 2),
+        filename: 'json.json',
+        mimeType: 'application/json'
+      }
+    };
+    
+    document.querySelectorAll('[data-download]').forEach(el => {
+      el.addEventListener('click', () => {
+        const key = el.getAttribute('data-download');
+        const { data, filename, mimeType } = option[key];
+        download(typeof data === 'function' ? data() : data, filename, mimeType);
+      }, false);
+    });
+  </script>
+</body>
+</html>
